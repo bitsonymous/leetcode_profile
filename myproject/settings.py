@@ -22,6 +22,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'myapp',
+    'ratelimit',
+    'myapp.middleware.RateLimitMiddleware',
+
 ]
 
 MIDDLEWARE = [
