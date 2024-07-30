@@ -24,8 +24,8 @@ async def fetch_user_profile_data(username):
 
     profile_data = cache.get(cache_key_profile)
     # contest_data = cache.get(cache_key_contest)
-
-    if not profile_data or not contest_data:
+    # or not contest_data:
+    if not profile_data:
         user_profile_url = f"https://leetcode-api-faisalshohag.vercel.app/{username}"
         # contest_rating_url = f"https://alfa-leetcode-api.onrender.com/userContestRankingInfo/{username}"
         
