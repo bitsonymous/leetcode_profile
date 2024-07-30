@@ -1,7 +1,12 @@
 import asyncio
 import httpx
+import logging
 from django.core.cache import cache
 from django.shortcuts import render
+
+# Configure logging
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # Mapping of usernames to real names
 USER_NAME_TO_REAL_NAME = {
@@ -34,24 +39,26 @@ async def fetch_user_profile_data(username):
                 profile_response = await client.get(user_profile_url)
                 profile_response.raise_for_status()  # Raise an exception for HTTP errors
                 profile_data = profile_response.json()
+                logger.debug(f"Profile data for {username}: {profile_data}")
                 
                 contest_response = await client.get(contest_rating_url)
                 contest_response.raise_for_status()  # Raise an exception for HTTP errors
                 contest_data = contest_response.json()
+                logger.debug(f"Contest data for {username}: {contest_data}")
                 
                 # Cache the responses
                 cache.set(cache_key_profile, profile_data, timeout=3600)  # Cache for 1 hour
                 cache.set(cache_key_contest, contest_data, timeout=3600)  # Cache for 1 hour
 
             except httpx.RequestError as exc:
-                print(f"An error occurred while requesting data for {username}: {exc}")
+                logger.error(f"An error occurred while requesting data for {username}: {exc}")
                 # Handle the case where data cannot be fetched
                 profile_data = {}
                 contest_data = {}
 
     total_solved = profile_data.get("totalSolved", 0)
     today_submissions = list(profile_data.get("submissionCalendar", {}).values())[-1] if profile_data.get("submissionCalendar") else 0
-    contest_rating = contest_data.get("userContestRanking", {}).get("rating", "N/A")
+    contest_rating = contest_data.get("data", {}).get("userContestRanking", {}).get("rating", "N/A")
 
     return {
         'username': username,

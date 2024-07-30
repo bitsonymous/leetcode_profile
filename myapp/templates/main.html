@@ -3,37 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leetcode Profiles</title>
+    <title>User Profiles</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
-    <div class="container mx-auto p-6 mt-10">
-        <h1 class="text-3xl font-bold mb-6 text-gray-800">Leetcode Profiles</h1>
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow-lg">
-                <thead class="bg-gray-200">
+    <div class="container mx-auto py-8">
+        <h1 class="text-4xl font-bold mb-4">User Profiles</h1>
+        <div class="bg-white p-6 rounded-lg shadow-lg">
+            <table class="min-w-full bg-white">
+                <thead class="bg-gray-800 text-white">
                     <tr>
-                        <th class="py-3 px-4 border-b text-left text-gray-600">#</th>
-                        <th class="py-3 px-4 border-b text-left text-gray-600">Name</th>
-                        <th class="py-3 px-4 border-b text-left text-gray-600">Username</th>
-                        <th class="py-3 px-4 border-b text-left text-gray-600">Total Solved</th>
-                        <th class="py-3 px-4 border-b text-left text-gray-600">Recent # Submissions</th>
-                        <th class="py-3 px-4 border-b text-left text-gray-600">Contest Rating</th>
+                        <th class="text-left py-3 px-4">Username</th>
+                        <th class="text-left py-3 px-4">Real Name</th>
+                        <th class="text-left py-3 px-4">Total Solved</th>
+                        <th class="text-left py-3 px-4">Today's Submissions</th>
+                        <th class="text-left py-3 px-4">Contest Rating</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for user in user_data_list %}
-                    <tr class="hover:bg-gray-100">
-                        <td class="py-3 px-4 border-b text-gray-800">{{ forloop.counter }}</td>
-                        <td class="py-3 px-4 border-b text-gray-800">{{ user.real_name }}</td>
-                        <td class="py-3 px-4 border-b text-gray-800">{{ user.username }}</td>
-                        <td class="py-3 px-4 border-b text-gray-800">{{ user.total_solved }}</td>
-                        <td class="py-3 px-4 border-b text-gray-800">{{ user.today_submissions }}</td>
-                        <td class="py-3 px-4 border-b text-gray-800">{{ user.contest_rating }}</td>
-                    </tr>
-                    {% empty %}
+                <tbody class="text-gray-700">
+                    {% for user_data in user_data_list %}
                     <tr>
-                        <td colspan="6" class="py-3 px-4 border-b text-center text-gray-600">No data available</td>
+                        <td class="text-left py-3 px-4">{{ user_data.username }}</td>
+                        <td class="text-left py-3 px-4">{{ user_data.real_name }}</td>
+                        <td class="text-left py-3 px-4">{{ user_data.total_solved }}</td>
+                        <td class="text-left py-3 px-4">{{ user_data.today_submissions }}</td>
+                        <td class="text-left py-3 px-4">{{ user_data.contest_rating }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
