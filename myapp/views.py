@@ -1,6 +1,5 @@
 import asyncio
 import httpx
-import time
 from django.core.cache import cache
 from django.shortcuts import render
 
@@ -17,7 +16,7 @@ USER_NAME_TO_REAL_NAME = {
     # Add more mappings as needed
 }
 
-# Fetch user profile data with caching
+# Fetch user profile data with caching and error handling
 async def fetch_user_profile_data(username):
     cache_key_profile = f"profile_data_{username}"
     cache_key_contest = f"contest_data_{username}"
@@ -29,16 +28,25 @@ async def fetch_user_profile_data(username):
         user_profile_url = f"https://leetcode-api-faisalshohag.vercel.app/{username}"
         contest_rating_url = f"https://alfa-leetcode-api.onrender.com/userContestRankingInfo/{username}"
         
-        async with httpx.AsyncClient() as client:
-            profile_response = await client.get(user_profile_url)
-            contest_response = await client.get(contest_rating_url)
-        
-        profile_data = profile_response.json()
-        contest_data = contest_response.json()
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            try:
+                profile_response = await client.get(user_profile_url)
+                profile_response.raise_for_status()  # Raise an exception for HTTP errors
+                profile_data = profile_response.json()
+                
+                contest_response = await client.get(contest_rating_url)
+                contest_response.raise_for_status()  # Raise an exception for HTTP errors
+                contest_data = contest_response.json()
+                
+                # Cache the responses
+                cache.set(cache_key_profile, profile_data, timeout=3600)  # Cache for 1 hour
+                cache.set(cache_key_contest, contest_data, timeout=3600)  # Cache for 1 hour
 
-        # Cache the responses
-        cache.set(cache_key_profile, profile_data, timeout=3600)  # Cache for 1 hour
-        cache.set(cache_key_contest, contest_data, timeout=3600)  # Cache for 1 hour
+            except httpx.RequestError as exc:
+                print(f"An error occurred while requesting data for {username}: {exc}")
+                # Handle the case where data cannot be fetched
+                profile_data = {}
+                contest_data = {}
 
     total_solved = profile_data.get("totalSolved", 0)
     today_submissions = list(profile_data.get("submissionCalendar", {}).values())[-1] if profile_data.get("submissionCalendar") else 0
@@ -54,16 +62,13 @@ async def fetch_user_profile_data(username):
 # View function to render user profiles
 def user_profiles(request):
     usernames = list(USER_NAME_TO_REAL_NAME.keys())  # Use keys from the mapping
-    user_data_list = []
 
     async def get_all_user_data():
         tasks = [fetch_user_profile_data(username) for username in usernames]
         return await asyncio.gather(*tasks)
     
     # Use asyncio to fetch all user data concurrently
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    user_data_list = loop.run_until_complete(get_all_user_data())
+    user_data_list = asyncio.run(get_all_user_data())
 
     # Add real names to user data and sort by total solved questions
     for user_data in user_data_list:
