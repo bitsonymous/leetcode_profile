@@ -13,6 +13,7 @@ USER_NAME_TO_REAL_NAME = {
     '_cup_of_cofee': 'Mukul Chauhan',
     'chamoli2k2': 'Gaurav Chamoli',
     'bewildered_': 'Jivtesh Shrivastav',
+    'pranjal_trvd': 'Pranjal Trivedi'
     # Add more mappings as needed
 }
 
