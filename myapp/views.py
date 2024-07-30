@@ -20,14 +20,14 @@ USER_NAME_TO_REAL_NAME = {
 # Fetch user profile data with caching and error handling
 async def fetch_user_profile_data(username):
     cache_key_profile = f"profile_data_{username}"
-    # cache_key_contest = f"contest_data_{username}"
+    cache_key_contest = f"contest_data_{username}"
 
     profile_data = cache.get(cache_key_profile)
-    # contest_data = cache.get(cache_key_contest)
-    # or not contest_data:
-    if not profile_data:
+    contest_data = cache.get(cache_key_contest)
+
+    if not profile_data or not contest_data:
         user_profile_url = f"https://leetcode-api-faisalshohag.vercel.app/{username}"
-        # contest_rating_url = f"https://alfa-leetcode-api.onrender.com/userContestRankingInfo/{username}"
+        contest_rating_url = f"https://alfa-leetcode-api.onrender.com/userContestRankingInfo/{username}"
         
         async with httpx.AsyncClient(timeout=10.0) as client:
             try:
@@ -35,29 +35,29 @@ async def fetch_user_profile_data(username):
                 profile_response.raise_for_status()  # Raise an exception for HTTP errors
                 profile_data = profile_response.json()
                 
-                # contest_response = await client.get(contest_rating_url)
-                # contest_response.raise_for_status()  # Raise an exception for HTTP errors
-                # contest_data = contest_response.json()
+                contest_response = await client.get(contest_rating_url)
+                contest_response.raise_for_status()  # Raise an exception for HTTP errors
+                contest_data = contest_response.json()
                 
                 # Cache the responses
                 cache.set(cache_key_profile, profile_data, timeout=3600)  # Cache for 1 hour
-                # cache.set(cache_key_contest, contest_data, timeout=3600)  # Cache for 1 hour
+                cache.set(cache_key_contest, contest_data, timeout=3600)  # Cache for 1 hour
 
             except httpx.RequestError as exc:
                 print(f"An error occurred while requesting data for {username}: {exc}")
                 # Handle the case where data cannot be fetched
                 profile_data = {}
-                # contest_data = {}
+                contest_data = {}
 
     total_solved = profile_data.get("totalSolved", 0)
     today_submissions = list(profile_data.get("submissionCalendar", {}).values())[-1] if profile_data.get("submissionCalendar") else 0
-    # contest_rating = contest_data.get("contestRating", "N/A")
+    contest_rating = contest_data.get("rating", "N/A")
 
     return {
         'username': username,
         'total_solved': total_solved,
         'today_submissions': today_submissions,
-        # 'contest_rating': contest_rating,
+        'contest_rating': contest_rating,
     }
 
 # View function to render user profiles
