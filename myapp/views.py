@@ -51,7 +51,7 @@ async def fetch_user_profile_data(username):
 
     total_solved = profile_data.get("totalSolved", 0)
     today_submissions = list(profile_data.get("submissionCalendar", {}).values())[-1] if profile_data.get("submissionCalendar") else 0
-    contest_rating = contest_data.get("rating", "N/A")
+    contest_rating = contest_data.get("userContestRanking", {}).get("rating", "N/A")
 
     return {
         'username': username,
