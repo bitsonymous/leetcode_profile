@@ -23,8 +23,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'myapp',
     'ratelimit',
-    'myapp.middleware.RateLimitMiddleware',
-
 ]
 
 MIDDLEWARE = [
